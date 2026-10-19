@@ -10,7 +10,9 @@ let startTime = null;
 
 window.onload = async () => {
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=get_init_data`);
+    const res = await fetch(`${SCRIPT_URL}?action=get_init_data`, {
+      redirect: "follow"
+    });
     const data = await res.json();
     questionsData = data.questions;
     studentsData = data.students;
