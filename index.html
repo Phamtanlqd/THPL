@@ -30,8 +30,9 @@
           <ul>
             <li class="mb-2"><b>Đề thi:</b> Gồm 30 câu hỏi trắc nghiệm + 01 câu hỏi phụ dự đoán.</li>
             <li class="mb-2"><b>Thời gian:</b> 30 phút. Hệ thống tự nộp khi hết giờ.</li>
-            <li class="mb-2"><b>Lưu ý chống gian lận:</b> Không chuyển tab trình duyệt quá số lần quy định.</li>
-            <li class="mb-2"><b>Xếp hạng:</b> Xét theo <i>Số câu đúng $\rightarrow$ Thời gian làm bài $\rightarrow$ Sai lệch câu hỏi phụ</i>.</li>
+            <li class="mb-2"><b>Lưu ý:</b> Hệ thống ghi nhận mỗi lần rời khỏi màn hình làm bài. Nếu mất mạng hoặc tải lại trang, đăng nhập lại để làm tiếp (thời gian vẫn tính).</li>
+            <li class="mb-2"><b>Xếp hạng:</b> Xét theo <i>Số câu đúng → Thời gian làm bài → Sai lệch câu hỏi phụ</i>.</li>
+            <li class="mb-2"><b>Giải tập thể:</b> 01 giải dành cho lớp có số thí sinh dự thi đông nhất; nếu bằng nhau xét trung bình số câu đúng cao hơn, rồi thời gian trung bình ngắn hơn.</li>
           </ul>
         </div>
       </div>
@@ -42,13 +43,13 @@
           <form id="form-login">
             <div class="mb-3">
               <label class="form-label fw-bold">Mã Học Sinh</label>
-              <input type="text" id="login-code" class="form-control form-control-lg" placeholder="Ví dụ: HS001" required>
+              <input type="text" id="login-code" class="form-control form-control-lg" placeholder="Nhập mã học sinh" autocomplete="off" required>
             </div>
             <div class="mb-3">
               <label class="form-label fw-bold">Mật Khẩu</label>
               <input type="password" id="login-pass" class="form-control form-control-lg" placeholder="Nhập mật khẩu" required>
             </div>
-            <button type="submit" class="btn btn-gov w-100 py-3 mt-2 fs-5"><i class="fa-solid fa-paper-plane me-2"></i>BẮT ĐẦU DỰ THI</button>
+            <button type="submit" id="btn-login" class="btn btn-gov w-100 py-3 mt-2 fs-5"><i class="fa-solid fa-paper-plane me-2"></i>BẮT ĐẦU DỰ THI</button>
           </form>
           <div class="text-center mt-3">
             <a href="#" onclick="showRankings()" class="text-decoration-none fw-bold text-primary"><i class="fa-solid fa-trophy me-1"></i>Xem Bảng Xếp Hạng & Giải Thưởng</a>
@@ -66,6 +67,7 @@
               <span id="student-info-display" class="fw-bold text-primary fs-5">Thí sinh: ...</span>
               <span class="timer-badge" id="exam-timer">30:00</span>
             </div>
+            <div id="tab-warn" class="alert alert-warning py-2 d-none"></div>
             <div class="progress mb-4" style="height: 12px;">
               <div id="exam-progress-bar" class="progress-bar bg-success" style="width: 0%"></div>
             </div>
@@ -92,6 +94,18 @@
       </div>
     </div>
 
+    <!-- Kết quả sau khi nộp -->
+    <div id="section-result" class="d-none">
+      <div class="card card-custom p-5 text-center mx-auto" style="max-width:560px">
+        <h3 class="text-success fw-bold"><i class="fa-solid fa-circle-check me-2"></i>NỘP BÀI THÀNH CÔNG!</h3>
+        <div class="display-3 fw-bold text-primary my-3"><span id="r-dung">0</span><span class="fs-3 text-muted">/<span id="r-tong">0</span></span></div>
+        <p class="mb-1 text-muted">Số câu đúng</p>
+        <p class="fw-bold">Thời gian làm bài: <span id="r-time"></span></p>
+        <p class="small text-muted">Kết quả xếp hạng và giải thưởng sẽ được công bố sau khi cuộc thi kết thúc.</p>
+        <div class="d-flex gap-2 justify-content-center"><button class="btn btn-primary" onclick="showRankings()">Xem bảng xếp hạng</button><button class="btn btn-outline-secondary" onclick="location.reload()">Đăng xuất</button></div>
+      </div>
+    </div>
+
     <!-- Section 3: Bảng Xếp Hạng & Trao Giải -->
     <div id="section-rankings" class="d-none">
       <div class="card card-custom p-4">
@@ -102,6 +116,14 @@
             <button onclick="location.reload()" class="btn btn-secondary"><i class="fa-solid fa-rotate-right me-1"></i>Quay Lại</button>
           </div>
         </div>
+        <div id="class-box" class="mb-4 d-none">
+          <div id="class-winner" class="alert alert-warning d-flex flex-wrap align-items-center gap-2 mb-2"></div>
+          <details><summary class="fw-bold mb-2">Bảng xếp hạng tập thể (top 10 lớp)</summary>
+            <div class="table-responsive"><table class="table table-sm align-middle mb-0">
+              <thead><tr><th>Hạng</th><th>Lớp</th><th>Số thí sinh</th><th>Tỷ lệ sĩ số</th><th>TB số câu đúng</th><th>TB thời gian</th></tr></thead>
+              <tbody id="class-body"></tbody></table></div></details>
+        </div>
+        <div id="rank-badge" class="small text-muted mb-2"></div>
         <div class="table-responsive">
           <table class="table table-hover align-middle">
             <thead class="table-dark">
@@ -144,7 +166,7 @@
         <div style="margin-top: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 50px;">
           <div id="cert-qr"></div>
           <div style="text-align: center;">
-            <p style="margin-bottom: 50px;"><i>..., Ngày 20 tháng 11 năm 2026</i><br><b>TM. BAN TỔ CHỨC CUỘC THI</b></p>
+            <p style="margin-bottom: 50px;"><i id="cert-date">..., Ngày 20 tháng 11 năm 2026</i><br><b>TM. BAN TỔ CHỨC CUỘC THI</b></p>
             <p style="font-weight: bold; color: #003366;">TRƯỞNG BAN TỔ CHỨC</p>
           </div>
         </div>
@@ -154,6 +176,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

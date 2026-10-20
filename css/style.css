@@ -126,3 +126,10 @@ body {
   text-align: center;
   box-sizing: border-box;
 }
+/* ---- Bổ sung cho trang quản trị và thông báo ---- */
+:root{--ink:#0f172a;--muted:#64748b;--success:#10B981;--warning:#F59E0B;--danger:#EF4444}
+.card-fluent{background:#fff;border:1px solid #e2e8f0;border-radius:14px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+.pill{display:inline-flex;padding:.25rem .75rem;border-radius:999px;font-size:.85rem;font-weight:600}
+.pill.ok{background:#d1fae5;color:#047857}.pill.off{background:#fee2e2;color:#b91c1c}.pill.wait{background:#fef3c7;color:#b45309}
+.stat{padding:1rem 1.2rem}.stat .n{font-size:1.9rem;font-weight:800}
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0}
